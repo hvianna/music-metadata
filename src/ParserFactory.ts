@@ -6,18 +6,11 @@ import * as MimeType from "media-typer";
 
 import * as _debug from "debug";
 import {INativeMetadataCollector, MetadataCollector} from "./common/MetadataCollector";
-import { AIFFParser } from './aiff/AiffParser';
-import { APEv2Parser } from './apev2/APEv2Parser';
-import { AsfParser } from './asf/AsfParser';
 import { FlacParser } from './flac/FlacParser';
 import { MP4Parser } from './mp4/MP4Parser';
 import { MpegParser } from './mpeg/MpegParser';
-import MusepackParser from './musepack';
 import { OggParser } from './ogg/OggParser';
 import { WaveParser } from './riff/WaveParser';
-import { WavPackParser } from './wavpack/WavPackParser';
-import {DsfParser} from "./dsf/DsfParser";
-import {DsdiffParser} from "./dsdiff/DsdiffParser";
 
 const debug = _debug("music-metadata:parser:factory");
 
@@ -103,9 +96,6 @@ export class ParserFactory {
       case '.aac': // Assume it is ADTS-container
         return 'mpeg';
 
-      case ".ape":
-        return 'apev2';
-
       case ".mp4":
       case ".m4a":
       case ".m4b":
@@ -114,11 +104,6 @@ export class ParserFactory {
       case ".m4r":
       case ".3gp":
         return 'mp4';
-
-      case ".wma":
-      case ".wmv":
-      case ".asf":
-        return 'asf';
 
       case ".flac":
         return 'flac';
@@ -132,43 +117,19 @@ export class ParserFactory {
       case ".spx": // recommended filename extension for Ogg Speex
         return 'ogg';
 
-      case ".aif":
-      case ".aiff":
-      case ".aifc":
-        return 'aiff';
-
       case ".wav":
         return 'riff';
 
-      case ".wv":
-      case ".wvp":
-        return 'wavpack';
-
-      case ".mpc":
-        return 'musepack';
-
-      case '.dsf':
-        return 'dsf';
-
-      case '.dff':
-        return 'dsdiff';
     }
   }
 
   public static async loadParser(moduleName: ParserType, options: IOptions): Promise<ITokenParser> {
     switch (moduleName) {
-      case 'aiff': return new AIFFParser();
-      case 'apev2': return new APEv2Parser();
-      case 'asf': return new AsfParser();
-      case 'dsf': return new DsfParser();
-      case 'dsdiff': return new DsdiffParser();
       case 'flac': return new FlacParser();
       case 'mp4': return new MP4Parser();
       case 'mpeg': return new MpegParser();
-      case 'musepack': return new MusepackParser();
       case 'ogg': return new OggParser();
       case 'riff': return new WaveParser();
-      case 'wavpack': return new WavPackParser();
       default:
         throw new Error(`Unknown parser type: ${moduleName}`);
     }
@@ -215,10 +176,6 @@ export class ParserFactory {
           case 'flac':
             return 'flac';
 
-          case 'ape':
-          case 'monkeys-audio':
-            return 'apev2';
-
           case 'mp4':
           case 'aac':
           case 'aacp':
@@ -230,38 +187,16 @@ export class ParserFactory {
           case 'speex': // RFC 5574
             return 'ogg';
 
-          case 'ms-wma':
-          case 'ms-wmv':
-          case 'ms-asf':
-            return 'asf';
-
-          case 'aiff':
-          case 'aif':
-          case 'aifc':
-            return 'aiff';
-
           case 'vnd.wave':
           case 'wav':
           case 'wave':
             return 'riff';
 
-          case 'wavpack':
-            return 'wavpack';
-
-          case 'musepack':
-            return 'musepack';
-
-          case 'dsf':
-            return 'dsf';
         }
         break;
 
       case 'video':
         switch (subType) {
-
-          case 'ms-asf':
-          case 'ms-wmv':
-            return 'asf';
 
           case 'm4v':
           case 'mp4':
@@ -274,9 +209,6 @@ export class ParserFactory {
 
       case 'application':
         switch (subType) {
-
-          case 'vnd.ms-asf':
-            return 'asf';
 
           case 'ogg':
             return 'ogg';
