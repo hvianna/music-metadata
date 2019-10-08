@@ -1,9 +1,9 @@
 import {assert} from 'chai';
 import * as path from 'path';
-import {ID3v2Parser} from "../src/id3v2/ID3v2Parser";
+import {ID3v2Parser} from "../lib/id3v2/ID3v2Parser";
 import * as strtok from "strtok3";
-import {MetadataCollector} from "../src/common/MetadataCollector";
-import * as mm from '../src';
+import {MetadataCollector} from "../lib/common/MetadataCollector";
+import * as mm from '../lib';
 
 const t = assert;
 
@@ -142,7 +142,7 @@ describe("Extract metadata from ID3v2.3 header", () => {
       const filePath = path.join(samplePath, 'issue_56.mp3');
 
       return mm.parseFile(filePath, {duration: true, native: true}).then(metadata => {
-        t.deepEqual(metadata.format.tagTypes, ['ID3v2.3', 'ID3v1'], 'format.tagTypes'); // ToDo: has hale APEv2 tag header
+        t.deepEqual(metadata.format.tagTypes, ['ID3v2.3', 'APEv2', 'ID3v1'], 'format.tagTypes'); // ToDo: has hale APEv2 tag header
       });
     });
 

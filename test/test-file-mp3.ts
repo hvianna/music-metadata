@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import * as mm from '../src';
+import * as mm from '../lib';
 import * as path from 'path';
 import {Parsers} from './metadata-parsers';
 
@@ -26,24 +26,30 @@ describe("Parse MP3 files", () => {
     });
   });
 
-  it('should be able to parse: Sleep Away.mp3 ', function() {
+  it('should be able to parse: Sleep Away.mp3', function() {
 
     this.timeout(15000); // Parsing this file can take a bit longer
 
     const filePath = path.join(samplePath, 'mp3', 'Sleep Away.mp3');
 
     return mm.parseFile(filePath, {duration: true}).then(metadata => {
-      const format = metadata.format;
+      const {format, common} = metadata;
+
       assert.deepEqual(format.container, 'MPEG', 'format.container');
       assert.deepEqual(format.codec, 'MP3', 'format.codec');
       assert.strictEqual(format.sampleRate, 44100, 'format.sampleRate');
       assert.strictEqual(format.numberOfChannels, 2, 'format.numberOfChannels');
 
-      const common = metadata.common;
       assert.strictEqual(common.title, 'Sleep Away');
       assert.strictEqual(common.artist, 'Bob Acri');
       assert.deepEqual(common.composer, ['Robert R. Acri']);
       assert.deepEqual(common.genre, ['Jazz']);
+
+      assert.strictEqual(common.picture.length, 1, 'should contain the cover');
+      const picture = common.picture[0];
+      assert.strictEqual(picture.description, 'thumbnail');
+      assert.strictEqual(picture.format, 'image/jpeg');
+      assert.strictEqual(picture.data.length, 27852);
     });
   });
 
@@ -105,6 +111,34 @@ describe("Parse MP3 files", () => {
           });
       });
 
+    });
+
+  });
+
+  describe('MP3 with APEv2 footer header', () => {
+
+    it('should be able to parse APEv2 header', async () => {
+
+      const filePath = path.join(samplePath, 'issue_56.mp3');
+
+      const metadata = await mm.parseFile(filePath, {native: true});
+      assert.strictEqual(metadata.format.container, 'MPEG');
+      assert.deepEqual(metadata.format.tagTypes, ['ID3v2.3', 'APEv2', 'ID3v1']);
+    });
+
+    it('should be able to parse APEv2 header followed by a Lyrics3v2 header', async () => {
+
+      const filePath = path.join(samplePath, 'mp3', 'APEv2+Lyrics3v2.mp3');
+
+      const metadata = await mm.parseFile(filePath, {native: true});
+      assert.strictEqual(metadata.format.container, 'MPEG');
+      assert.deepEqual(metadata.format.tagTypes, ['ID3v2.3', 'APEv2', 'ID3v1']);
+
+      const ape = mm.orderTags(metadata.native.APEv2);
+      assert.deepEqual(ape.MP3GAIN_MINMAX, ['131,189']);
+      assert.deepEqual(ape.REPLAYGAIN_TRACK_GAIN, ['+0.540000 dB']);
+      assert.deepEqual(ape.REPLAYGAIN_TRACK_PEAK, ['0.497886']);
+      assert.deepEqual(ape.MP3GAIN_UNDO, [ '+004,+004,N' ]);
     });
 
   });

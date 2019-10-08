@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import {commonTags} from '../lib/common/GenericTagTypes';
-import {CombinedTagMapper} from '../src/common/CombinedTagMapper';
+import {CombinedTagMapper} from '../lib/common/CombinedTagMapper';
 
 import * as markDown from "./MarkDown";
 
@@ -39,7 +39,7 @@ function write(out: fs.WriteStream) {
     table.header.values.push(nativeType);
   }
 
-  for (const commonTagKey in commonTags) {
+  for (const commonTagKey of Object.keys(commonTags)) {
     const tagInfo = commonDescriptionDict[commonTagKey];
     if (!tagInfo)
       throw new Error(`${commonTagKey} not found`);
